@@ -1,0 +1,31 @@
+RewriteEngine on
+
+# Check if this is the desktop to mobile query string
+RewriteCond %{QUERY_STRING} (^|&)m=1(&|$)
+
+# Set a cookie, and skip the next 2 rules 
+RewriteRule ^ - [CO=mredir:1:%{HTTP_HOST},S=2]
+
+# Check if this is the mobile to desktop query string
+RewriteCond %{QUERY_STRING} (^|&)m=0(&|$)
+
+# Set a cookie, and skip the next rule
+RewriteRule ^ - [CO=mredir:0:%{HTTP_HOST},S]
+
+RewriteCond %{HTTP_USER_AGENT} "android|blackberry|iphone|ipod|iemobile|opera mobile|palmos|webos|googlebot-mobile" [NC]
+
+# Check if we're not already on the mobile site
+RewriteCond %{HTTP_HOST} !^m\.
+
+# Can not read and write cookie in same request, must duplicate condition
+RewriteCond %{QUERY_STRING} !(^|&)m=0(&|$) 
+
+# Check to make sure we haven't set the cookie before
+RewriteCond %{HTTP_COOKIE} !^.*mredir=0.*$ [NC]
+
+RewriteRule ^(.*)$ http://m.bahiadelsolhotel.com/ [L,R=302]
+
+# 1.) Check if on desktop site and having www., if not redirect to www.website.com
+RewriteCond %{HTTP_HOST} !^www\. [NC]
+RewriteCond %{HTTP_HOST} !^m\. [NC]
+RewriteRule ^(.*)$ http://www.bahiadelsolhotel.com$1 [R=301,L]
